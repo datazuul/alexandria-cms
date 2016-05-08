@@ -104,7 +104,7 @@ Run CMS (in development)
 Run CMS (in production)
 
 * Deploy WAR to Tomcat
-* Start with java environment variable "spring.profiles.active" set to "PROD" (-Dspring.profiles.active:local)
+* Start with java environment variable "spring.profiles.active" set to "PROD" (-Dspring.profiles.active:PROD)
 
 Use CMS
 
