@@ -1,0 +1,487 @@
+Installation und Server-Administration
+
+%{toc}
+
+* Voraussetzungen
+
+** Betriebssystem
+
+  Das Entwickler-Betriebssystem ist (analog zur Server-Umgebung) Linux. Zu empfehlen ist Ubuntu oder eines seiner Derivate (z.B. Linux Mint).
+
+* Installation Software
+
+** Linux
+
+  Installation mit DVD
+
+** Git
+
+*** Installation
+
+  Homepage: {{http://www.git-scm.com/}} \
+  Download: {{http://www.git-scm.com/downloads}}
+
+**** Linux (Ubuntu basiert)
+
+  Wenn noch nicht installiert:
+
++---+
+$ sudo apt-get install git
+$ git --version
+git version 1.9.1
++---+
+
+*** Konfiguration
+
+**** Benutzer
+
+ * Public-/Private-Key erzeugen:
+
++---+
+$ ssh-keygen 
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/ralf/.ssh/id_rsa): 
+Created directory '/home/ralf/.ssh'.
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/ralf/.ssh/id_rsa.
+Your public key has been saved in /home/ralf/.ssh/id_rsa.pub.
+The key fingerprint is:
+...
++---+
+
+ * Public-Key an Git-Admin schicken: Datei “~/.ssh/id_rsa.pub“
+
+ * Git-Userdaten konfigurieren:
+
++---+
+$ git config --global user.name 'Ralf Eichinger'
+$ git config --global user.email 'ralf.eichinger@bsb-muenchen.de'
++---+
+
+**** Admin
+
+ * Falls noch nicht vorhanden, Konfigurations-Repository klonen:
+
++---+
+$ git clone git@bsbrepo.bsb.lrz.de:/gitolite-admin.git
++---+
+
+ * Den öffentlichen Teil des Schlüssels ('id_rsa.pub') in den 'keydir' Unterordner als 'username.pub' kopieren
+ * Schlüssel mit 'git add' zum Repository hinzufügen und committen
+ * Dem Benutzer Schreibrechte für Projekte/Repositories zuweisen in 'conf/gitolite.conf', 'git add' und committen
+ * gitolite-Änderungen sind sofort aktiv
+
+*** Benutzung
+
+**** Links zur Einführung
+
+ * Kleiner Online-Kurs zu den Basics: {{http://try.github.com}}
+
+ * Kurze Videos zu den Basics bzw. zur Systemarchitektur: {{http://git-scm.com/videos}}
+
+ * Übersichtliche Kurzreferenz: {{http://gitref.org/}}
+
+ * Das Nachschlagewerk: {{http://git-scm.com/book}}
+
+  * Kapitel, die besonders zum Einstieg geeignet sind:
+
+   * http://git-scm.com/book/en/Getting-Started
+
+   * http://git-scm.com/book/en/Git-Basics
+
+   * http://git-scm.com/book/en/Git-Branching
+
+   * http://git-scm.com/book/en/Distributed-Git
+
+   * http://git-scm.com/book/en/Git-Tools
+
+**** Git Repository für neues Projekt einrichten
+
+  (Hinweis: Die folgende Beschreibung setzt voraus dass bereits ein public/private key erzeugt wurde)
+
++---+
+$ cd <Project Root directory>
+$ git init
+$ git remote add origin git@bsbrepo.bsb.lrz.de:name/des/repositories.git
++---+
+
+  .gitignore bearbeiten und etwa „target“ bei java-projekten eintragen um sie von commits auszuschließen
+
++---+
+$ git add .
+$ git commit -m „Erster Commit“
+$ git push origin master
++---+
+
+  Ein Projekt auf dem zentralen Git-Server einrichten:
+
++---+
+$ ssh -l username bsbrepo.bsb.lrz.de
+# cd /local/git/repositories/lza
+# git init --bare wa-fill-authorizations.git
+Initialized empty Git repository in /local/git/repositories/lza/wa-fill-authorizations.git/
+# chown -R git:users wa-fill-authorizations.git/
++---+
+
+**** Projekt-Beschreibung für Webinterface setzen
+
++---+
+$ ssh git@bsbrepo.bsb.lrz.de desc <repo-name> <description>
++---+
+
+**** Gängige Befehle
+
+***** Basics
+
+ * Füge Dateien/Ordner zu Staging-Bereich hinzu
+
++---+
+$ git add
++---+
+
+ * Füge Teile von Dateien interaktiv zu Staging-Bereich hinzu
+
++---+
+$ git add -p
++---+
+
+ * Entferne Datei aus Index und Dateisystem
+
++---+
+$ git rm
++---+
+
+ * Entferne Datei aus Index
+
++---+
+$ git rm --cached
++---+
+
+ * Zeige Übersicht über Änderungen seit letztem Commit
+
++---+
+$ git status
++---+
+
+ * Wechsle in anderen Branch
+
++---+
+$ git checkout <branch>
++---+
+
+ * Zeige detaillierte Änderungen seit letztem Commit
+
++---+
+$ git diff
++---+
+
+ * Commite alle Änderungen in Staging
+
++---+
+$ git commit
++---+
+
+ * Sende Commits zu Remote Repository
+
++---+
+$ git push
++---+
+
+ * Hole Commits von Remote Repository und merge mit eigenen Änderungen
+
++---+
+$ git pull
++---+
+
+***** Fortgeschritten
+
+ * Wie pull, nur werden lokale Änderungen neu auf den letzten Stand des Servers aufgespielt
+
++---+
+$ git pull --rebase
++---+
+
+ * Wer hat wann was an der Datei verändert?
+
++---+
+$ git blame
++---+
+
+ * Wann hat sich der Bug in diese Datei eingeschlichen?
+
++---+
+$ git bisect
++---+
+
+**** Richtlinien
+
+ * <<Ein Commit == eine logische Einheit>> \
+   Jeder Commit sollte eine spezifische Änderung an der Code-Basis beinhalten.
+   D.h. wenn man in einem Rutsch mehrere Dinge auf einmal gemacht hat, die Änderungen auf mehrere Commits aufteilen.
+   Hierbei hilft der git add -p Befehl, mit ihm lassen sich einzelne Teile einer Datei für einen Commit selektieren.
+
+   <Faustregel>: Wenn man Kommata oder „und“ in der Commit-Message hat bzw. die Kernaussage (was/wo) länger als eine Zeile wird,
+   ist es wahrscheinlich an der Zeit ihn aufzusplitten.
+
+ * <<Für neue Features und Experimente: Branches>> \
+   Möchte man ein neues Feature für ein Projekt implementieren, ist es sinnvoll hierfür einen eigenen Branch anzulegen,
+   in dem man so lange arbeitet bis man überzeugt ist, das Feature endgültig in das Projekt zu integrieren.
+   Hierdurch vermeidet man Konflikte mit Wartungsarbeiten und isoliert die Änderungen von anderen Baustellen.
+
+ * <<Bei häufigem push/pull: pull --rebase>> \
+   Hiermit wird der Commit-Log schlank gehalten, da jeder Merge (der bei einem pull standardmäßig passiert)
+   einen eigenen Commit zur Folge hat, passiert dies häufiger wird der Log oft unübersichtlich und
+   verschleiert die eigentlichen Änderungen.
+
+ * <<In ein Repository gehören nur Quelltexte, Konfigurationsdateien und Dokumentationen>> \
+   Binaries, temporäre Dateien und ähnliches haben in der Regel nichts in einem Repository verloren.
+   Das heißt, keine *.jar Dateien, keine target Ordner. Für ersteres ist Maven o. Gradle zuständig,
+   bei zweiterem sollte sich jegliche Diskussion dank gesundem Menschenverstand eigentlich erübrigen... \
+   Ausnahmen bestätigen die Regel :-)
+
+ * <<Commit-Messages sind keine Kür>> \
+   In der Commit-Message sollte eindeutig erkennbar sein, was geändert wurde.
+   D.h. lediglich „Commit…“ oder „Bugfix“ reichen nicht! Es hilft sich an die drei Ws zu halten:
+   Was wurde wo warum geändert. Siehe auch Regel 1. Hilfreich ist oft auch die Angabe der Jira-ID, wie z.B. [BAV-127] ...
+
+**** Häufige Fragen
+
+ * <<Ich will ein neues Repository!>> \
+   Beim Git-Admin mit Namen des Repositorys melden
+
+ * <<Ich habe meinen Schlüssel aus Versehen gelöscht, was tun?>> \
+   Mit ssh-keygen ein neues Schlüsselpaar generieren und den öffentlichen Teil an den Git-Admin schicken.
+
+ * <<Ich mag die Kommandozeile nicht, gibt's sowas nicht für meine IDE?>> \
+   Ja, für Eclipse gibt es z.B. EGit (Eclipse aus der STS http://spring.io/tools/sts hat das bereits mit an Bord),
+   IntelliJ und NetBeans haben Git-Unterstützung bereits integriert.
+
+
+** Java
+
+  Homepage: {{http://www.oracle.com/technetwork/java/javase/downloads/index.html}} \
+  Version: Java SE 7 u 67
+
+*** Installation
+
+  Manueller Download auf Entwickler-Rechner (Lizenz muß bestätigt werden) von {{http://www.oracle.com/technetwork/java/archive-139210.html}} und
+  in ein lokales Verzeichnis entpacken, z.B. nach ~/DEV/:
+
++---+
+$ mkdir ~/DEV
+$ cd ~/DEV
+$ tar xvfz Downloads/jdk-7u67-linux-x64.tar.gz
+
++---+
+
+*** Konfiguration
+
+**** Umgebungsvariable JAVA_HOME setzen
+
+  Debianbasierte Systeme (Ubuntu, Mint, …):
+
++---+
+$ sudo nano /etc/environment
+JAVA_HOME=/home/ralf/DEV/jdk1.7.0_67
+PATH="$JAVA_HOME/bin:/usr/local/sbin:..."
++---+
+
+  Test:
+
++---+
+$ source /etc/environment
+$ java -version
+java version "1.7.0_67"
+Java(TM) SE Runtime Environment (build 1.7.0_67-b01)
+Java HotSpot(TM) 64-Bit Server VM (build 24.65-b04, mixed mode)
++---+
+
+
+** Maven
+
+  Homepage: http://maven.apache.org \
+  Version: 3.0.5
+
+*** Installation
+
+**** Linux (Ubuntu)
+
++---+
+$ sudo apt-get install maven
+$ mvn --version
+Apache Maven 3.0.5
+Maven home: /usr/share/maven
+Java version: 1.7.0_60, vendor: Oracle Corporation
+Java home: /home/ralf/DEV/jdk1.7.0_60/jre
+Default locale: de_DE, platform encoding: UTF-8
+OS name: "linux", version: "3.13.0-24-generic", arch: "i386", family: "unix"
++---+
+
+*** Konfiguration
+
+**** settings.xml
+
+  Für Deployment ins Nexus (BSB-Repository) in der lokalen ~/.m2/settings.xml einzutragen
+  (Passwort bitte bei Bavarikon-Entwicklern erfragen):
+
++---+
+<settings>
+ <servers>
+    <server>
+     <id>mdzrepo-snapshot</id>
+     <username>deployment</username>
+     <password>xxxxxx</password>
+   </server>
+   <server>
+     <id>mdzrepo-release</id>
+     <username>deployment</username>
+     <password>xxxxxx</password>
+   </server>
+ </servers>
+ <profiles>
+   <profile>
+     <id>allow-snapshots</id>
+     <activation><activeByDefault>true</activeByDefault></activation>
+     <repositories>
+       <repository>
+         <id>snapshots-repo</id>
+         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+         <releases><enabled>false</enabled></releases>
+         <snapshots><enabled>true</enabled></snapshots>
+       </repository>
+     </repositories>
+   </profile>
+ </profiles>
+</settings>
++---+
+
+**** pom.xml
+
+ * Deployment section für BSB Repository \
+   Um ein Modul in das BSB Repository hochzuladen muss man zusätzlich zur Konfiguration der Repositories
+   in der .m2/settings.xml (s. oben) folgenden Eintrag in der modulspezifischen pom.xml einfügen um
+   das Deployment in das BSB-Repository zu aktivieren:
+
++---+
+ <distributionManagement>
+      <repository>
+          <id>mdzrepo-release</id>
+          <name>MDZ Deployment</name>
+          <url>http://bsbrepo.bsb.lrz.de/nexus/content/repositories/mdzrepo-release</url>
+      </repository>
+      <snapshotRepository>
+          <id>mdzrepo-snapshot</id>
+          <name>MDZ Snapshot</name>
+          <url>http://bsbrepo.bsb.lrz.de/nexus/content/repositories/mdzrepo-snapshot</url>
+      </snapshotRepository>
+  </distributionManagement>
++---+
+
+  Nun kann per mvn deploy das tatsächliche Deployment vorgenommen werden.
+
+*** Benutzung
+
+ * Typischer Workflow
+
++---+
+$ mvn archetype:generate -DgroupId=de.bsb.dok -DartifactId=HelloWorld -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+$ mvn package
+$ mvn install
+$ mvn deploy
++---+
+
+
+ * AD-Hoc deploy eines jar files
+
+  http://maven.apache.org/plugins/maven-deploy-plugin/deploy-file-mojo.html
+
+ * Resolve full dependency tree
+
++---+
+mvn dependency:tree -Dverbose
++---+
+
+**** Guidelines
+
+ * Versionen : <major>.<minor>.<patch>-<qualifier>-<build number> z.B. 4.5.11-RC1-3732
+
+
+** PostgreSQL
+
+  Homepage: {{http://www.postgresql.org/}} \
+  Version: 9.3
+
+*** Installation
+
+  Debian based:
+
++---+
+$ sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+$ sudo apt-get install wget ca-certificates
+$ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+$ sudo apt-get update
+$ sudo apt-get upgrade
+$ sudo apt-get install postgresql-9.3 postgresql-server-dev-all
++---+
+
+*** Konfiguration
+
++---+
+$ sudo nano /etc/postgresql/9.3/main/postgresql.conf
+...
+listen_addresses = '*'
+...
+port = 9432
++---+
+
+*** Benutzung
+
+  Starten/Stoppen
+
++---+
+$ sudo /etc/init.d/postgresql restart
+ * Restarting PostgreSQL 9.3 database server                                     [ OK ]
++---+
+
+  Bavarikon-Datenbank einrichten
+
++---+
+$ sudo su - postgres
+$ psql -c "CREATE USER bavarikon PASSWORD 'somepassword';"
+$ createdb bavarikon_cms -O bavarikon
++---+
+
+** Python
+
+  Homepage: {{https://www.python.org/}} \
+  Version: 2.7.6
+
+*** Installation
+
++---+
+$ sudo apt-get install python-pip python-dev
+$ sudo pip install bleach requests psycopg2 beautifulsoup4
++---+
+
+** Redis
+
+*** Installation
+
++---+
+$ sudo apt-get install redis-server
++---+
+
+*** Konfiguration
+
+  Als Dienst installieren:
+
++---+
+$ sudo /sbin/insserv redis-server
++---+
+
+*** Benutzung
+
++---+
+$ sudo /etc/init.d/redis-server start
++---+

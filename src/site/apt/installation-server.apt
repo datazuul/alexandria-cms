@@ -1,0 +1,783 @@
+Installation und Server-Administration
+
+%{toc}
+
+* Voraussetzungen
+
+** LRZ-Kennung
+
+  Um auf den LRZ-Servern arbeiten zu kennen braucht man eine LRZ-Kennung ({{https://idportal.lrz.de/r/entry.pl}}) und die IP der Entwickler-Rechner muß in <</etc/hosts.allow>> auf den Servern eingetragen sein.
+
+** LRZ-Rechnernamen
+
+  Um sich per SSH auf die Server einloggen zu können, braucht man die Liste der Rechnernamen.
+  Beispiel: bsb0mdz-bav-frontend1-stg.bsb.lrz.de
+
++---+
+Tools:
+======
+
+Jenkins: bsb0mdz-builder.bsb.lrz.de
+
+Development (dev):
+==================
+
+?? bsb0mdz-bav-geodb1-dev.bsb.lrz.de      (10.155.178.23)
+bsb0mdz-bav-bildsuche1-dev.bsb.lrz.de   (10.155.178.21)
+? bsb0mdz-bav-bildsuche2-dev.bsb.lrz.de (10.155.178.22)
+bsb0mdz-bav-frontend1-dev.bsb.lrz.de    (10.155.178.6)
+bsb0mdz-bav-frontend2-dev.bsb.lrz.de    (10.155.178.7)
+bsb0mdz-bav-solr1-dev.bsb.lrz.de        (10.155.178.1)
+bsb0mdz-bav-solr2-dev.bsb.lrz.de        (10.155.178.2)
+bsb0mdz-bav-cms1-dev.bsb.lrz.de         (10.155.178.18)
+bsb0mdz-bav-fedbav1-dev.bsb.lrz.de      (10.155.178.10)
+? bsb0mdz-bav-fedbav2-dev.bsb.lrz.de      (10.155.178.11)
+?? bsb0mdz-bav-fedzend1-dev.bsb.lrz.de    (10.155.178.14)
+?? bsb0mdz-bav-fedzend2-dev.bsb.lrz.de    (10.155.178.15)
+bsb0mdz-bav-batch1-dev.bsb.lrz.de         (10.155.178.19)
+?? bsb0mdz-bav-ner1-dev.bsb.lrz.de        (10.155.178.20)
+
+Staging (stg):
+==============
+
+?? bsb0mdz-bav-geodb1-stg.bsb.lrz.de      (10.155.174.23)
+bsb0mdz-bav-bildsuche1-stg.bsb.lrz.de   (10.155.174.21)
+? bsb0mdz-bav-bildsuche2-stg.bsb.lrz.de   (10.155.174.22)
+bsb0mdz-bav-frontend1-stg.bsb.lrz.de    (10.155.174.6)
+bsb0mdz-bav-frontend2-stg.bsb.lrz.de    (10.155.174.7)
+bsb0mdz-bav-solr1-stg.bsb.lrz.de        (10.155.174.1)
+bsb0mdz-bav-solr2-stg.bsb.lrz.de        (10.155.174.2)
+bsb0mdz-bav-cms1-stg.bsb.lrz.de         (10.155.174.18)
+bsb0mdz-bav-fedbav1-stg.bsb.lrz.de      (10.155.174.10)
+? bsb0mdz-bav-fedbav2-stg.bsb.lrz.de      (10.155.174.11)
+?? bsb0mdz-bav-fedzend1-stg.bsb.lrz.de    (10.155.174.14)
+?? bsb0mdz-bav-fedzend2-stg.bsb.lrz.de    (10.155.174.15)
+bsb0mdz-bav-batch1-stg.bsb.lrz.de       (10.155.174.19)
+?? bsb0mdz-bav-ner1-stg.bsb.lrz.de        (10.155.174.20)
+
+Production:
+===========
+LoadBalancer der Produktion liegt auf http://129.187.255.216/
+
+?? bsb0mdz-bav-geodb1.bsb.lrz.de          (10.155.175.23)
+bsb0mdz-bav-bildsuche1.bsb.lrz.de       (10.155.175.21)
+? bsb0mdz-bav-bildsuche2.bsb.lrz.de       (10.155.175.22)
+bsb0mdz-bav-frontend1.bsb.lrz.de        (10.155.175.6)
+bsb0mdz-bav-frontend2.bsb.lrz.de        (10.155.175.7)
+bsb0mdz-bav-solr1.bsb.lrz.de            (10.155.175.1)
+bsb0mdz-bav-solr2.bsb.lrz.de            (10.155.175.2)
+bsb0mdz-bav-fedbav1.bsb.lrz.de          (10.155.175.10)
+? bsb0mdz-bav-fedbav2.bsb.lrz.de          (10.155.175.11)
+?? bsb0mdz-bav-fedzend1.bsb.lrz.de        (10.155.175.14)
+?? bsb0mdz-bav-fedzend2.bsb.lrz.de        (10.155.175.15)
+?? bsb0mdz-bav-batch1.bsb.lrz.de          (10.155.175.19)
++---+
+
+** SSH
+
+  SSH muß installiert sein.
+  Einloggen mit
+
++---+
+$ ssh <lrz-kennung>@<hostname>
++---+
+
+*** Unattended Login
+
+  Wem das Eintippen von "ssh <lrz-kennung>@<hostname>" mit Passworteingabe zu viel Arbeit ist, der kann es sich mit ein paar Handgriffen sehr viel einfacher machen:
+  
+  * SSH pubkey von „<<$HOME/.ssh/id_rsa.pub>>“ nach "<<$HOME/.ssh/authorized_keys>>" auf der Remote-Maschine kopieren (eine einzige Maschine reicht, das Home-Verzeichnis ist auf allen gemounted)
+
+  * Login ohne Passworteingabe („unattended“) (nur mit SSH-Key)
+
+*** Aliases
+
+  Für jede Maschine ein Kürzel in "<<$HOME/.ssh/config>>" erstellen nach dem Muster:
+
++---+
+Host <alias>
+   HostName <hostname>
+   Port 22
+   User <lrz-kennung>
++---+
+
+  Beispiel:
+
++---+
+Host b2s-cms 
+    HostName bsb0mdz-bav-cms1-stg.bsb.lrz.de 
+    Port 22 
+    User xyzuser
++---+
+
+  Ab sofort einfach mit "<<ssh <alias>>>" auf Server einloggen.
+
+Installation Software
+
+* Betriebssystem SuSE Enterprise
+
++---+
+$ less /etc/SuSE-release
+SUSE Linux Enterprise Server 11 (x86_64) 
+VERSION = 11 
+PATCHLEVEL = 3
++---+
+
++---+
+$ less /proc/version
+Linux version 3.0.101-0.35-default (geeko@buildhost) (gcc version 4.3.4 [gcc-4_3 -branch revision 152973] (SUSE Linux) ) #1 SMP Wed Jul 9 11:43:04 UTC 2014 (c369 87d)
++---+
+
+* PostgreSQL (Relationale Datenbank)
+
+  Homepage: {{http://www.postgresql.org/}} \
+  Version: 9.3.5
+
+** Installation
+
++---+
+$ sudo zypper install postgresql93-server
++---+
+
+** Konfiguration
+
+  Der laufende Prozess zeigt, wo die Konfiguration liegt:
+
++---+
+$ ps -ef
+…
+/usr/lib/postgresql93/bin/postgres -D /var/lib/pgsql/data
+…
++---+
+
+  Netzwerk-Zugriff (JDBC) freigeben und Port konfigurieren:
+
++---+
+# vi /var/lib/pgsql/data/postgresql.conf
+…
+listen_addresses = '*'
+# If your server has (say) two external network interfaces, you can tell PostgreSQL to only bind on one of them, so it's not even possible to make a TCP connection to Pg on the other.
+# It's mostly an extra level of security for a system that has multiple interfaces to different security domains.
+# Quite handy in combination with VLANs, virtual switches, etc.
+# The most common use is setting it to localhost so that TCP/IP connections are not possible from any external network interface, only the loopback address.
+# Use '*' if it listens on all interfaces
+…
+port = 5432
+…
++---+
+
+  Allow authentication only from production (10.155.175.*) and staging (10.155.174.*) systems:
+
++---+
+# vi /var/lib/pgsql/data/pg_hba.conf
+…
+#host    all             all                  samenet                   md5
+#host    all             all             samenet                 trust
+host    all             all             10.155.0.0/16                 trust
+…
++---+
+
+** Benutzung
+
+*** Starten/Stoppen
+
++---+
+$ sudo /etc/init.d/postgresql start
+$ postgres –version 
+postgres (PostgreSQL) 9.3.5
+$ sudo /etc/init.d/postgresql stop
++---+
+
+*** Datenbank mit Owner anlegen
+
++---+
+# su – postgres
+$ psql -c "CREATE USER bavarikon PASSWORD 'your_password';"
+$ createdb bavarikon_cms -O bavarikon
++---+
+
+* Redis (Key-Value Cache and Store)
+
+  Homepage: {{http://redis.io/}} \
+  Version: 2.8.18
+
++---+
+# redis-server --version
+Redis server v=2.8.18 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=4036e7cc963c1f7d
++---+
+
+** Installation
+
++---+
+$ sudo zypper install redis
++---+
+
+** Konfiguration
+
+  Prepare Cache-Directory:
+
++---+
+# cd /local/bavarikon2-webapp/
+# mkdir redis
+# chown redis:users redis/
++---+
+
+  Avoid "Can't save in background: fork: Cannot allocate memory"
+
++---+
+# vi /etc/sysctl.conf
+...
+vm.overcommit_memory=1
+...
+# sysctl vm.overcommit_memory=1
++---+
+
++---+
+$ sudo cp /etc/redis/default.conf.example /etc/redis/redis.conf
+$ sudo vim /etc/redis/redis.conf
+# ---Folgende Einträge vornehmen----#
+# Maximale Größe im Hauptspeicher, an tatsächlich verfügbaren RAM anpassen
+maxmemory 8192mb
+
+# Eviction-Strategie als LRU (least-recently-used) für alle Keys setzen
+maxmemory-policy allkeys-lru
+
+# Genauigkeit des angenäherten LRU-Algorithmus optimieren
+maxmemory-samples 10
+
+# The working directory.
+dir /local/bavarikon2-webapp/redis/
+
+# --------------------------------------------------#
++---+
+
+  Berechtigungen für Konfigurationsdatei setzen:
+
++---+
+$ sudo chmod a+rx /etc/redis
+$ sudo chmod a+r /etc/redis/*
++---+
+
+  Als Dienst installieren:
+
++---+
+$ sudo /sbin/insserv redis
++---+
+
+** Benutzung
+
+*** Starten (OHNE sudo)
+
++---+
+$ /usr/sbin/rcredis start
++---+
+
+* Python
+
+  Beispiel: Für Migration von Daten aus Drupal CMS nach PostgreSQL wurde ein Python-Skript implementiert. \
+  Homepage: {{https://www.python.org/}} \
+  Version: 2.6.9
+
+** Installation
+
++---+
+$ sudo zypper install python-setuptools
++---+
+
+  Python-Repository für SuSE hinzufügen:
+
++---+
+$ sudo zypper ar http://download.opensuse.org/repositories/devel:/languages:/python/SLE_11_SP3/devel:languages:python.repo
+Adding repository 'Python Modules (SLE_11_SP3)' [done] 
+…
+Do you want to reject the key, trust temporarily, or trust always? [r/t/a/? shows all options] (r): a 
+Retrieving repository 'Python Modules (SLE_11_SP3)' metadata [done] 
+Building repository 'Python Modules (SLE_11_SP3)' cache [done] 
+Repository 'JAVA7-SLES-11.3-x86_64' is up to date. 
+Repository 'OBS-SLES-11.3-x86_64-SERVER-DATABASE' is up to date. 
+Repository 'SLES-11.3-x86_64' is up to date. 
+Repository 'SLES-11.3-x86_64-BVBEXTRAS' is up to date. 
+Repository 'SLES-11.3-x86_64-SDK' is up to date. 
+Repository 'SLES-11.3-x86_64-SDK-Updates' is up to date. 
+Repository 'SLES-11.3-x86_64-Updates' is up to date. 
+Repository 'SLES-11.3-x86_64-Spacewalk-Client' is up to date. 
+All repositories have been refreshed. 
++---+
+
+  Python-Module für PostgreSQL etc. installieren:
+
++---+
+$ sudo zypper install python-psycopg2 python-requests python-bleach python-beautifulsoup4
++---+
+
+* Java
+
+  Homepage: {{http://www.oracle.com/technetwork/java/javase/downloads/index.html}} \
+  Version: Server JRE (Java SE Runtime Environment) 7u67 \
+
+** Installation
+
+  Manueller Download auf Entwickler-Rechner (Lizenz muß bestätigt werden) von {{http://download.oracle.com/otn-pub/java/jdk/7u67-b01/server-jre-7u67-linux-x64.tar.gz}} und
+  dann mit scp auf den Server übertragen:
+
++---+
+$ scp Downloads/server-jre-7u67-linux-x64.tar.gz <lrz-kennung>@b2s-cms:~
++---+
+
+  Auf Server einloggen und Paket nach „/local/software/“ verschieben:
+
++---+
+# mkdir -p /local/software/
+# cp /ldaphome/<lrz-kennung>/server-jre-7u67-linux-x64.tar.gz /local/software/
++---+
+
+  Paket entpacken und installieren:
+
++---+
+# cd /local/software/
+# tar xvfz server-jre-7u67-linux-x64.tar.gz
+# mkdir -p /local/bavarikon2-cms/
+# mv jdk1.7.0_67/ /local/bavarikon2-cms/
++---+
+
+** Konfiguration
+
+  JAVA_HOME wird in Tomcat-Skripten explizit gesetzt.
+
+* Apache Tomcat (Servlet Container)
+
+  Homepage: {{http://tomcat.apache.org/}} \
+  Version: 8.0.9
+
+** Installation
+
++---+
+# cd /local/software
+# wget http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.9/bin/apache-tomcat-8.0.9.tar.gz
+# tar xvfz apache-tomcat-8.0.9.tar.gz
+# mkdir -p /local/bavarikon2-cms/
+# mv apache-tomcat-8.0.9 /local/bavarikon2-cms/
++---+
+
+** Konfiguration
+
+*** Umgebungsvariablen konfigurieren: 
+
+  (Falls images nicht angezeigt und ClassNotFound exception für Class sun.awt.X11GraphicsEnvironment erzeugt wird
+  JAVA_OPTS erweitern mit -Djava.awt.headless=true)
+  Speicher-Zugriff optimieren: ulimit -v unlimited (wichtig bei Anzeige sehr großer Karten/IIIF mit libjpeg)
+
++---+
+# cd /local/bavarikon2-cms/apache-tomcat-8.0.9
+# vi bin/setenv.sh
+#!/bin/sh 
+
+ulimit -v unlimited
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CATALINA_HOME/lib 
+export JAVA_HOME="/local/bavarikon2-cms/jdk1.7.0_67" 
+export JRE_HOME="$JAVA_HOME/jre"
+export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=STAGE"
+
+$ sudo chmod 755 bin/setenv.sh
+$ sudo chown di34faz:pr89qa bin/setenv.sh
+$ sudo setfacl -m u:di29vit:rwx bin/setenv.sh
++---+
+
+*** Startskript einrichten
+
++---+
+# vi /etc/init.d/tomcat
+
+#! /bin/sh
+#
+# Author:       Sepp Kuffer
+#
+# /etc/init.d/tomcat
+### BEGIN INIT INFO
+# Provides:       existdb
+# Required-Start: $network $remote_fs
+# Required-Stop: $network $remote_fs
+# Default-Start:  3 5
+# Default-Stop:   0 1 2 6
+# Short-Description: Start the various tomcat servers
+# Description:    Start the various tomcat servers
+### END INIT INFO
+
+for applikation in /local/bavarikon2-cms/apache-tomcat-8.0.9
+do
+
+#test -f /local/app_dbavar/tomcat_alpha_01/bin/startup.sh || exit 0
+case "$1" in
+        start)
+        echo "Start the tomcat Daemon for $applikation"
+                /usr/bin/test -f $applikation/bin/startup.sh || exit 0
+                su - tomcat -c $applikation/bin/startup.sh
+                        ;;
+        stop)
+        echo "Stop the tomcat Daemon for $applikation"
+                /usr/bin/test -f $applikation/bin/shutdown.sh || exit 0
+                su - tomcat -c $applikation/bin/shutdown.sh
+                        ;;
+        restart)
+        echo "Restart Tomcat for $applikation"
+                /usr/bin/test -f $applikation/bin/shutdown.sh || exit 0
+                su - tomcat -c $applikation/bin/shutdown.sh
+                /usr/bin/test -f $applikation/bin/startup.sh || exit 0
+                su - tomcat -c $applikation/bin/startup.sh
+                        ;;
+        *)
+        echo "usage:  /etc/init.d/tomcat start|stop|restart"
+        exit 1
+                ;;
+        esac
+done
++---+
+
+  Startskript konfigurieren
+
++---+
+$ sudo chmod 755 /etc/init.d/tomcat
+$ sudo /sbin/insserv tomcat
++---+
+
+*** Server-Port konfigurieren
+
++---+
+# cd /local/bavarikon2-cms/apache-tomcat-8.0.9
+# vi conf/server.xml
+...
+<Connector port="60088" protocol="HTTP/1.1"
+           connectionTimeout="20000"
+           redirectPort="8443" />
+...
++---+
+
+
+** Security
+
+  See: {{http://tomcat.apache.org/tomcat-8.0-doc/security-howto.html}}
+
+*** Standard-Webanwendungen entfernen:
+
++---+
+# cd $CATALINA_HOME/webapps
+# rm -rf *
++---+
+
+*** Standard-Benutzer entfernen:
+
++---+
+# cd $CATALINA_HOME/conf
+# vi tomcat-users.xml
+<tomcat-users> 
+<!-- 
+  NOTE:  By default, no user is included in the "manager-gui" role required 
+  to operate the "/manager/html" web application.  If you wish to use this app, 
+  you must define such a user - the username and password are arbitrary. 
+--> 
+<!-- 
+  NOTE:  The sample user and role entries below are wrapped in a comment 
+  and thus are ignored when reading this file. Do not forget to remove 
+  <!.. ..> that surrounds them. 
+--> 
+<!-- 
+  <role rolename="tomcat"/> 
+  <role rolename="role1"/> 
+  <user username="tomcat" password="tomcat" roles="tomcat"/> 
+  <user username="both" password="tomcat" roles="tomcat,role1"/> 
+  <user username="role1" password="tomcat" roles="role1"/> 
+--> 
+</tomcat-users>
++---+
+
+*** Server-Info auf Fehlerseiten deaktivieren
+
+  "The server attribute controls the value of the Server HTTP header. The default value of this header for Tomcat 4.1.x to 8.0.x is Apache-Coyote/1.1. 
+  This header can provide limited information to both legitimate clients and attackers."
+  
++---+
+# vi conf/server.xml
+…
+<Connector port="60088" protocol="HTTP/1.1"
+               server="XXXXX"
+               connectionTimeout="20000"
+               redirectPort="8443" />
+…
+<Engine ...>
+  <Host name="localhost"  appBase="webapps" unpackWARs="false" autoDeploy="false">
+  	<Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false"/>
+  </Host>
+</Engine>
++---+
+
+*** System-User anlegen, mit dem Tomcat gestartet werden soll
+
++---+
+# groupadd tomcat
+# useradd -g tomcat -s /bin/bash -m -d /home/tomcat tomcat
+# chown -R tomcat:pr89qa /local/bavarikon2-cms/apache-tomcat-8.0.9/logs,temp,work
++---+
+
+** Benutzung
+
+*** Starten
+
++---+
+$ /etc/init.d/tomcat start
+
+ohne Startskript (z.B. auf lokaler Entwicklungsumgebung):
+
+# su - tomcat
+$ cd /local/bavarikon2-cms/apache-tomcat-8.0.9
+$ bin/startup.sh
+Using CATALINA_BASE:   /local/bavarikon2-cms/apache-tomcat-8.0.9
+Using CATALINA_HOME:   /local/bavarikon2-cms/apache-tomcat-8.0.9
+Using CATALINA_TMPDIR: /local/bavarikon2-cms/apache-tomcat-8.0.9/temp
+Using JRE_HOME:        /local/bavarikon2-cms/jdk1.7.0_67/jre
+Using CLASSPATH:       /local/bavarikon2-cms/apache-tomcat-8.0.9/bin/bootstrap.jar:/local/bavarikon2-cms/apache-tomcat-8.0.9/bin/tom cat-juli.jar
+Tomcat started.
++---+
+
+*** Webanwendung deployen
+
+**** Bavarikon CMS
+
+  * Sicherstellen, dass benötigte Arbeitsverzeichnisse mit Zugriffsrechten für Tomcat und Entwickler-Gruppe (pr89qa) vorhanden sind:
+
+   * /bavarikon2/global/cms
+
++---+
+# mkdir -p /bavarikon2/global/cms
+# chown -R tomcat:pr89qa /bavarikon2/global/cms
++---+
+
+   * Redis-Cache:
+
++---+
+# cd /local/bavarikon2-webapp/
+# mkdir redis
+# chown redis:users redis/
++---+
+
+   * BufferedImage-Cache:
+
++---+
+# cd /local/bavarikon2-webapp/
+# mkdir bufferedImageCache
+# chown tomcat:users bufferedImageCache/
++---+
+
+  * Benötigte Image-Libraries installieren:
+
++---+
+#  zypper install libjpeg-32bit
+Refreshing service 'spacewalk'.
+Loading repository data...
+Reading installed packages...
+'libjpeg-32bit' is already installed.
+No update candidate for 'libjpeg-32bit-6.2.0-879.12.1.x86_64'. The highest available version is already installed.
+Resolving package dependencies...
+
+Nothing to do.
+
+# zypper search libjpeg
+Refreshing service 'spacewalk'.
+Loading repository data...
+Reading installed packages...
+
+S | Name                | Summary                                                               | Type   
+--+---------------------+-----------------------------------------------------------------------+--------
+i | libjpeg             | JPEG libraries                                                        | package
+i | libjpeg-32bit       | JPEG libraries                                                        | package
+  | libjpeg-devel       | Development Tools for applications which will use the Libjpeg Library | package
+  | libjpeg-devel-32bit | Development Tools for applications which will use the Libjpeg Library | package
++---+
+
+  libjpeg8 installieren:
+
++---+
+# zypper ar -f http://download.opensuse.org/repositories/home:/Simmphonie/SLE_11_SP3/ home:Simmphonie
+Adding repository 'home:Simmphonie' [done]
+Repository 'home:Simmphonie' successfully added
+Enabled: Yes
+Autorefresh: Yes
+GPG check: Yes
+URI: http://download.opensuse.org/repositories/home:/Simmphonie/SLE_11_SP3/
+
+# zypper search jpeg
+Refreshing service 'spacewalk'.
+Retrieving repository 'home:Simmphonie' metadata [\]
+
+New repository or package signing key received:
+Key ID: 42E75B4B71A1D18D
+Key Name: home:Simmphonie OBS Project <home:Simmphonie@build.opensuse.org>
+Key Fingerprint: 5ECC4F9A1ABAB5B6FE4017A042E75B4B71A1D18D
+Key Created: Thu 04 Oct 2012 04:15:41 PM CEST
+Key Expires: Sat 13 Dec 2014 03:15:41 PM CET (expires in 8 days)
+Repository: home:Simmphonie
+
+Do you want to reject the key, trust temporarily, or trust always? [r/t/a/? shows all options] (r): a
+Retrieving repository 'home:Simmphonie' metadata [done]
+Building repository 'home:Simmphonie' cache [done]
+Loading repository data...
+Reading installed packages...
+
+S | Name                 | Summary                                                               | Type      
+--+----------------------+-----------------------------------------------------------------------+-----------
+  | jpeg                 | Independent JPEG Group's JPEG Software                                | package   
+  | jpeg8                | Independent JPEG Group's JPEG Software                                | package   
+  | jpeg8                | Independent JPEG Group's JPEG Software                                | srcpackage
+  | jpeg9                | Independent JPEG Group's JPEG Software                                | package   
+  | jpeg9                | Independent JPEG Group's JPEG Software                                | srcpackage
+i | libjpeg              | JPEG libraries                                                        | package   
+i | libjpeg-32bit        | JPEG libraries                                                        | package   
+  | libjpeg-devel        | Development Tools for applications which will use the Libjpeg Library | package   
+  | libjpeg-devel-32bit  | Development Tools for applications which will use the Libjpeg Library | package   
+  | libjpeg8             | JPEG libraries                                                        | package   
+  | libjpeg8-32bit       | JPEG libraries                                                        | package   
+  | libjpeg8-devel       | Development Tools for applications which will use the Libjpeg Library | package   
+  | libjpeg8-devel-32bit | Development Tools for applications which will use the Libjpeg Library | package   
+  | libjpeg9             | JPEG libraries                                                        | package   
+  | libjpeg9-32bit       | JPEG libraries                                                        | package   
+  | libjpeg9-devel       | Development Tools for applications which will use the Libjpeg Library | package   
+  | libjpeg9-devel-32bit | Development Tools for applications which will use the Libjpeg Library | package   
+  | mjpegtools           | MJPEG Video Capture and Processing Tools                              | package   
+  | mjpegtools-devel     | MJPEG Video Capture and Processing Tools                              | package
+
+# zypper install libjpeg8
+Refreshing service 'spacewalk'.
+Loading repository data...
+Reading installed packages...
+Resolving package dependencies...
+
+The following NEW package is going to be installed:
+  libjpeg8 
+
+The following package is not supported by its vendor:
+  libjpeg8 
+
+1 new package to install.
+Overall download size: 106.0 KiB. After the operation, additional 243.0 KiB will be used.
+Continue? [y/n/? shows all options] (y): y
+Retrieving package libjpeg8-8.4.0-14.3.x86_64 (1/1), 106.0 KiB (243.0 KiB unpacked)
+Retrieving: libjpeg8-8.4.0-14.3.x86_64.rpm [done]
+Installing: libjpeg8-8.4.0-14.3 [done]
+
+# ldconfig -p | grep jpeg
+  libsh7722_jpeg.so (libc6,x86-64) => /usr/lib64/libsh7722_jpeg.so
+	libjpegtran-jni.so (libc6,x86-64) => /usr/lib64/libjpegtran-jni.so
+	libjpeg.so.62 (libc6,x86-64) => /usr/lib64/libjpeg.so.62
+	libjpeg.so.62 (libc6) => /usr/lib/libjpeg.so.62
+	libjpeg.so.8 (libc6,x86-64) => /usr/lib64/libjpeg.so.8
++---+
+
+  * JNI-Library installieren:
+
+  lokal (Entwickler):
+
++---+
+$ cd ~/DEV/SOURCES/jpegtran-jni/bin/usr/lib64
+$ scp libjpegtran-jni.so di29vit@bsb0mdz-bav-cms1-dev.bsb.lrz.de:~/
++---+
+
+  Server:
+
++---+
+# install -m 0755 /ldaphome/di29vit/libjpegtran-jni.so /usr/lib64
+# ldconfig
++---+
+
+  * Zugriff auf Drittsysteme für IP des CMS-Servers freischalten
+
+    * Drupal CMS für Export der Altdaten (V1.0.3 Flyway Migration)
+
++---+
+$ ssh -l xxx bsb0mdz-kpb02.bsb.lrz.de
+$ sudo su -
+# cd /etc/apache2/vhosts.d/
+# vi bavarikon.conf
+...
+<Directory "/local/bavarikon/htdocs">
+  Options Indexes FollowSymLinks MultiViews
+  AllowOverride None
+  Order Deny,Allow
+  Deny from all
+  Allow from 10.155.178.18 194.95.59.130 194.95.59.150 194.95.59.183 194.95.59.184 194.95.59.185 194.95.59.189 193.174.98 138.246.224 129.187.255 81.169.153.70 85.214.119.6 81.169.188.220 212.71.209.0/24 10.155.174.0/24 129.187.50.0/24 127.0.0.1
+  Include /local/bavarikon/htdocs/.htaccess
+</Directory>
++---+
+
+    * Fedora:
+
++---+
+$ ssh -l xxx bsb0mdz-bav-fedbav1-dev.bsb.lrz.de
+$ sudo su -
+# cd /local/fedora/tomcat/conf
+# vi server.xml
+...
+<Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true">
+  ...
+  <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+         prefix="localhost_access_log" suffix=".txt"
+         pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+  <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false"/>
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve" 
+         allow="10\.155\.174\.\d+|10\.155\.175\.\d+|10\.155\.178\.\d+|194\.95\.59\.\d+|138\.246\.224\.\d+|129\.187\.\d+\.\d+|127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" />
+</Host>
++---+
+
+  * Copy WAR to server
+
++---+
+$ scp target/bavarikon2-cms-0.3.0-SNAPSHOT.war di29vit@bsb0mdz-bav-cms1-stg.bsb.lrz.de:~/
++---+
+
+  * On Server
+
++---+
+$ sudo su - tomcat
+$ cd /local/bavarikon2-cms/apache-tomcat-8.0.9
+$ /etc/init.d/tomcat stop
+…
+$ cat /dev/null > logs/catalina.out
+$ rm -rf webapps/ROOT* 
+$ cp /ldaphome/di29vit/bavarikon2-cms-frontend-0.3.0-SNAPSHOT.war webapps/ROOT.war 
+$ /etc/init.d/tomcat start
+$ less logs/catalina.out
++---+
+
+**** Bavarikon Frontend1/2
+
+  * Copy WAR to server
+
++---+
+$ cd bavarikon2
+$ mvn clean install
+$ scp bavarikon2-webapp/frontend-impl/target/bavarikon2-webapp-frontend-0.3.0-SNAPSHOT.war di29vit@bsb0mdz-bav-frontend1-stg.bsb.lrz.de:~/
++---+
+
+  * On Server
+
++---+
+$ cd /local/bavarikon2-webapp/apache-tomcat-8.0.9/
+$ sudo -u tomcat bin/shutdown.sh
+$ sudo -u tomcat rm -rf webapps/ROOT*
+($ sudo -u tomcat cat /dev/null > logs/catalina.out)
+$ sudo -u tomcat cp ~/bavarikon2-webapp-frontend-0.3.0-SNAPSHOT.war webapps/ROOT.war
+$ sudo -u tomcat bin/startup.sh 
+($ sudo -u tomcat tail -f logs/catalina.out)
++---+
+
+
+*** Eine CMS-Seite als Glanzlicht markieren
+
+Es müssen die DB-ID der Seite (z.B. 617) und die DB-ID des Upload-Files des Preview-Bildes (z.B. 245) bekannt sein.
+Diese sind aus den URLs (href/src) auf die jeweiligen Objekte ersichtlich.
+Auf DB-Server als Administrator (root) einloggen, zu postgres-User wechseln und Datensatz updaten:
+
++---+
+# su - postgres
+$ psql -d bavarikon_cms
+bavarikon_cms=# update basepage set highlight=true where id=617;
+bavarikon_cms=# update basepage set previewimage_id=245 where id=617;
++---+
