@@ -212,6 +212,7 @@ public class CmsRepositoryImpl implements CmsRepository {
     getSearchRepository(dn).index(dn, obj);
   }
 
+  @Override
   public void unIndex(final DomainName dn, final Object obj) {
     getSearchRepository(dn).unIndex(dn, obj);
   }

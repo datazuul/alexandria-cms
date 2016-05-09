@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.alexandria.cms.backend.config;
+package de.alexandria.cms.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,15 +28,15 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
  * @author ralf
  */
 @Configuration
-@Import({SpringConfigBackendDatabaseForTest.class})
+@Import({SpringConfigBackendDatabase.class})
 @ComponentScan(basePackages = {
     "de.alexandria.cms.backend.impl.jpa.repository"})
 @PropertySource(value = {
     "classpath:de/alexandria/cms/config/SpringConfigBackendJpa-${spring.profiles.active:local}.properties"
 })
-public class SpringConfigBackendForTest {
+public class SpringConfigBackendJpa {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SpringConfigBackendForTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringConfigBackendJpa.class);
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {

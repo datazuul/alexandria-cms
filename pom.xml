@@ -51,16 +51,21 @@
     <!-- dependencies versions -->
     <version.alexandria-cms>0.0.1-SNAPSHOT</version.alexandria-cms>
     <version.aspectjweaver>1.8.5</version.aspectjweaver>
+    <version.commons-beanutils-core>1.7.0</version.commons-beanutils-core>
     <version.commons-dbcp2>2.1</version.commons-dbcp2>
+    <version.commons-digester>1.8</version.commons-digester>
+    <version.commons-lang>2.3</version.commons-lang>
     <version.flyway-core>3.2.1</version.flyway-core>
     <version.h2>1.4.187</version.h2>
     <version.hamcrest-all>1.3</version.hamcrest-all>
     <version.hibernate-entitymanager>4.3.8.Final</version.hibernate-entitymanager>
     <version.hibernate-validator>4.3.2.Final</version.hibernate-validator>
+    <version.htmlparser>1.6</version.htmlparser>
     <version.jackson-annotations>2.5.2</version.jackson-annotations>
     <version.jackson-databind>2.5.2</version.jackson-databind>
     <version.jdom>1.1</version.jdom>
     <version.junit>4.12</version.junit>
+    <version.lucene>2.1.0</version.lucene>
     <version.mockito-core>1.10.19</version.mockito-core>
     <version.postgresql>9.4-1201-jdbc4</version.postgresql>
     <version.querydsl>3.6.3</version.querydsl>
@@ -88,6 +93,7 @@
     <version.maven-war-plugin>2.3</version.maven-war-plugin>
     <version.maven-site-plugin>3.4</version.maven-site-plugin>
     <version.wagon-ssh>2.8</version.wagon-ssh>
+    <version.commons-io>1.3.1</version.commons-io>
   </properties>
   
   <build>
@@ -242,6 +248,26 @@
         <version>${version.querydsl}</version>
       </dependency>
       <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils-core</artifactId>
+        <version>${version.commons-beanutils-core}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-digester</groupId>
+        <artifactId>commons-digester</artifactId>
+        <version>${version.commons-digester}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${version.commons-io}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${version.commons-lang}</version>
+      </dependency>
+      <dependency>
         <groupId>de.alexandria.cms</groupId>
         <artifactId>alexandria-cms-backend-api</artifactId>
         <version>${version.alexandria-cms}</version>
@@ -298,6 +324,26 @@
         <version>${version.commons-dbcp2}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-analyzers</artifactId>
+        <version>${version.lucene}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-core</artifactId>
+        <version>${version.lucene}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-highlighter</artifactId>
+        <version>${version.lucene}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-misc</artifactId>
+        <version>${version.lucene}</version>
+      </dependency>
+      <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
         <version>${version.aspectjweaver}</version>
@@ -322,6 +368,11 @@
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
         <version>${version.hibernate-validator}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.htmlparser</groupId>
+        <artifactId>htmlparser</artifactId>
+        <version>${version.htmlparser}</version>
       </dependency>
       <dependency>
         <groupId>org.jdom</groupId>

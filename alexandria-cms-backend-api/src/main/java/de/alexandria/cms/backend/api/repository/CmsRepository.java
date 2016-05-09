@@ -92,4 +92,5 @@ public interface CmsRepository {
 
   List search(final DomainName dn, final String query, final Object searchableObject);
   
+  void unIndex(final DomainName dn, final Object obj);
 }
