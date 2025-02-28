@@ -1,0 +1,8 @@
+/alexandria-cms-model-api/target/
+/alexandria-cms-backend-api/target/
+/alexandria-cms-backend-impl-jpa/target/
+
+**/.settings
+**/target
+**/.classpath
+**/.project
